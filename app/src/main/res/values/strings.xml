@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Loyalty</string>
+    <string name="title_activity_my_wallet">My Wallet</string>
+    <string name="action_settings">Settings</string>
 </resources>
