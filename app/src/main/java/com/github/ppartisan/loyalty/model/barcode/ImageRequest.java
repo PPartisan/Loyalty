@@ -38,15 +38,15 @@ class ImageRequest {
                 .load(uri);
     }
 
-    Image crop(Image original, Crop.Bounds bounds) {
-        final Crop.Bounds padded = pad(original.bitmap(), bounds);
+    Image crop(Image original, Bounds bounds) {
+        final Bounds padded = pad(original.bitmap(), bounds);
         final Bitmap cropped = Bitmap.createBitmap(
                 original.bitmap(), padded.x(), padded.y(), padded.width(), padded.height()
         );
         return Image.create(cropped);
     }
 
-    private Crop.Bounds pad(Bitmap bitmap, Crop.Bounds bounds) {
+    private Bounds pad(Bitmap bitmap, Bounds bounds) {
         final int bHeight = bitmap.getHeight();
         final int bWidth = bitmap.getWidth();
 
@@ -61,7 +61,7 @@ class ImageRequest {
         final boolean isWithinMaxBounds = right < bWidth && bottom < bHeight;
 
         return isWithinMaxBounds
-                ? Crop.Bounds.create(paddedX, paddedY, paddedW, paddedH)
+                ? Bounds.create(paddedX, paddedY, paddedW, paddedH)
                 : bounds;
     }
 
