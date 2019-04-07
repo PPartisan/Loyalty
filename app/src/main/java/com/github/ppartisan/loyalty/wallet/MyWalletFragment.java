@@ -5,10 +5,13 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
-import com.github.ppartisan.loyalty.util.BaseFragment;
+import com.bumptech.glide.Glide;
+import com.github.ppartisan.loyalty.R;
+import com.github.ppartisan.loyalty.model.barcode.Image;
+import com.github.ppartisan.loyalty.core.BaseFragment;
 import com.github.ppartisan.loyalty.wallet.SelectImage.Result;
-import com.google.android.material.snackbar.Snackbar;
 
 import javax.inject.Inject;
 
@@ -18,7 +21,6 @@ import androidx.annotation.Nullable;
 import static com.github.ppartisan.loyalty.R.id.fab;
 import static com.github.ppartisan.loyalty.R.id.toolbar;
 import static com.github.ppartisan.loyalty.R.layout.fragment_my_wallet;
-import static com.google.android.material.snackbar.Snackbar.LENGTH_LONG;
 
 public class MyWalletFragment extends BaseFragment implements MyWalletView {
 
@@ -46,8 +48,11 @@ public class MyWalletFragment extends BaseFragment implements MyWalletView {
     }
 
     @Override
-    public void showSelectedImage(String uri) {
-        root().ifPresent(v -> Snackbar.make(v, String.format("Image Uri:\n%s", uri), LENGTH_LONG).show());
+    public void showSelectedImage(Image image) {
+        root().ifPresent(v -> Glide.with(this)
+                .load(image.bitmap())
+                .into(v.<ImageView>findViewById(R.id.preview))
+        );
     }
 
 }

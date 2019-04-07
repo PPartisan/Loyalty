@@ -1,4 +1,4 @@
-package com.github.ppartisan.loyalty.util;
+package com.github.ppartisan.loyalty.core;
 
 import android.view.View;
 
