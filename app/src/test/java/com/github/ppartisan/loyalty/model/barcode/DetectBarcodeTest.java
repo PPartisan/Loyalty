@@ -57,7 +57,7 @@ public class DetectBarcodeTest {
         final Image original = mock(Image.class);
         when(image.loadImage(anyString())).thenReturn(Single.just(original));
 
-        final Crop.Bounds bounds = mock(Crop.Bounds.class);
+        final Bounds bounds = mock(Bounds.class);
         when(bounds.isValid()).thenReturn(false);
 
         final DetectionRequest.Result result = mock(DetectionRequest.Result.class);
@@ -76,7 +76,7 @@ public class DetectBarcodeTest {
         final Image original = mock(Image.class);
         when(image.loadImage(anyString())).thenReturn(Single.just(original));
 
-        final Crop.Bounds bounds = mock(Crop.Bounds.class);
+        final Bounds bounds = mock(Bounds.class);
         when(bounds.isValid()).thenReturn(true);
 
         final DetectionRequest.Result result = mock(DetectionRequest.Result.class);

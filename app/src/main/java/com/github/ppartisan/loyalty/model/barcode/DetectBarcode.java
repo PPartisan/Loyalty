@@ -1,7 +1,5 @@
 package com.github.ppartisan.loyalty.model.barcode;
 
-import com.github.ppartisan.loyalty.model.barcode.Crop.Bounds;
-
 import javax.inject.Inject;
 import javax.inject.Singleton;
 

@@ -1,6 +1,5 @@
 package com.github.ppartisan.loyalty.model.barcode;
 
-import com.github.ppartisan.loyalty.model.barcode.Crop.Bounds;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.auto.value.AutoValue;
@@ -45,9 +44,9 @@ class DetectionRequest {
 
         return barcodes.stream().limit(1)
                 .map(FirebaseVisionBarcode::getBoundingBox)
-                .map(Crop.Bounds::from)
+                .map(Bounds::from)
                 .findAny()
-                .orElseGet(Crop.Bounds::invalid);
+                .orElseGet(Bounds::invalid);
     }
 
     private static List<FirebaseVisionBarcode> awaitBarcodeDetectionResults(Task<List<FirebaseVisionBarcode>> task)
