@@ -13,11 +13,7 @@
         <activity
             android:name=".wallet.MyWalletActivity"
             android:label="@string/title_activity_my_wallet"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
-
-        <meta-data
-            android:name="com.google.firebase.ml.vision.DEPENDENCIES"
-            android:value="barcode" />
+            android:theme="@style/AppTheme.NoActionBar"/>
 
         <activity android:name=".splash.SplashActivity">
             <intent-filter>
