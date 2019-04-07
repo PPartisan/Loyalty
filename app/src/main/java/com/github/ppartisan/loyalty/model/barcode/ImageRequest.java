@@ -39,10 +39,38 @@ class ImageRequest {
     }
 
     Image crop(Image original, Crop.Bounds bounds) {
+        final Crop.Bounds padded = pad(original.bitmap(), bounds);
         final Bitmap cropped = Bitmap.createBitmap(
-                original.bitmap(), bounds.x(), bounds.y(), bounds.width(), bounds.height()
+                original.bitmap(), padded.x(), padded.y(), padded.width(), padded.height()
         );
         return Image.create(cropped);
+    }
+
+    private Crop.Bounds pad(Bitmap bitmap, Crop.Bounds bounds) {
+        final int bHeight = bitmap.getHeight();
+        final int bWidth = bitmap.getWidth();
+
+        final int paddedX = padCoord(bounds.x());
+        final int paddedY = padCoord(bounds.y());
+        final int paddedW = padDimen(bitmap.getWidth(), bounds.width());
+        final int paddedH = padDimen(bitmap.getHeight(), bounds.height());
+
+        final int right = paddedX + paddedW;
+        final int bottom = paddedY + paddedH;
+
+        final boolean isWithinMaxBounds = right < bWidth && bottom < bHeight;
+
+        return isWithinMaxBounds
+                ? Crop.Bounds.create(paddedX, paddedY, paddedW, paddedH)
+                : bounds;
+    }
+
+    private int padCoord(int in) {
+        return Math.max(in - settings.padding(), 0);
+    }
+
+    private int padDimen(int bound, int in) {
+        return Math.min(bound, in + (settings.padding()*2));
     }
 
 }

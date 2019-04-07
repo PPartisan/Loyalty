@@ -22,4 +22,9 @@ public class Settings {
         return prefs.getInt(value.key(), value.fallback());
     }
 
+    public int padding() {
+        final Value<Integer> padding = values.imagePadding();
+        return prefs.getInt(padding.key(), padding.fallback());
+    }
+
 }

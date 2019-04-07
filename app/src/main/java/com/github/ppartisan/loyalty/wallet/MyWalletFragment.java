@@ -29,11 +29,8 @@ public class MyWalletFragment extends BaseFragment implements MyWalletView {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup parent, Bundle state) {
         final View view = inflater.inflate(fragment_my_wallet, parent, false);
-
         activity().ifPresent(activity -> activity.setSupportActionBar(view.findViewById(toolbar)));
-
         view.findViewById(fab).setOnClickListener(v -> presenter.onAddBarcodeClicked());
-
         return view;
     }
 

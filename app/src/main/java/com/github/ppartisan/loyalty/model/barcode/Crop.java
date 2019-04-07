@@ -12,6 +12,7 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.util.Objects;
+import java.util.stream.IntStream;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -76,7 +77,10 @@ class Crop extends BitmapTransformation {
             return width() > 0 && height() > 0;
         }
 
-        private static Bounds create(int x, int y, int width, int height) {
+        static Bounds create(int x, int y, int width, int height) {
+            if(!areAllGreaterThanZero(x,y,width,height)) {
+                return invalid();
+            }
             return new AutoValue_Crop_Bounds(x, y, width, height);
         }
 
@@ -85,6 +89,10 @@ class Crop extends BitmapTransformation {
                 return invalid();
             }
             return create(rect.left, rect.top, rect.width(), rect.height());
+        }
+
+        private static boolean areAllGreaterThanZero(int... ints) {
+            return IntStream.of(ints).allMatch(i -> i > 0);
         }
 
         static Bounds invalid() {
