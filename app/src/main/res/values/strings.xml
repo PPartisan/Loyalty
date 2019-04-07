@@ -5,4 +5,5 @@
 
     <!-- Settings -->
     <string name="key_preferred_size">key_preferred_size</string>
+    <string name="key_preferred_padding">key_preferred_padding</string>
 </resources>

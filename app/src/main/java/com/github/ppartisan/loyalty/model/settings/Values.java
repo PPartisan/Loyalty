@@ -8,6 +8,7 @@ import javax.inject.Inject;
 
 import androidx.annotation.StringRes;
 
+import static com.github.ppartisan.loyalty.R.string.key_preferred_padding;
 import static com.github.ppartisan.loyalty.R.string.key_preferred_size;
 
 class Values {
@@ -21,6 +22,10 @@ class Values {
 
     Value<Integer> imageSize() {
         return Value.create(getKey(key_preferred_size), 1200);
+    }
+
+    Value<Integer> imagePadding() {
+        return Value.create(getKey(key_preferred_padding), 20);
     }
 
     private String getKey(@StringRes int id) {
