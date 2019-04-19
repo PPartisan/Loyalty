@@ -3,6 +3,10 @@
     <string name="title_activity_my_wallet">My Wallet</string>
     <string name="action_settings">Settings</string>
 
+    <!-- Preview -->
+    <string name="acp_preview_content_desc">Barcode Image Preview</string>
+    <string name="acp_card_title_hint">Enter A Card Title</string>
+
     <!-- Settings -->
     <string name="key_preferred_size">key_preferred_size</string>
     <string name="key_preferred_padding">key_preferred_padding</string>

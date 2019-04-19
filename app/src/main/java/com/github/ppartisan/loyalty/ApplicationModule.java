@@ -1,6 +1,7 @@
 package com.github.ppartisan.loyalty;
 
 import android.app.Application;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
@@ -21,6 +22,10 @@ abstract class ApplicationModule {
 
     @Provides static SharedPreferences sharedPreferences(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context);
+    }
+
+    @Provides static ContentResolver contentResolver(Context context) {
+        return context.getContentResolver();
     }
 
     @Provides static FirebaseVision firebaseVision() {

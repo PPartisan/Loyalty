@@ -1,5 +1,10 @@
 package com.github.ppartisan.loyalty.model.barcode;
 
+import android.graphics.Bitmap;
+import android.net.Uri;
+
+import com.github.ppartisan.loyalty.model.persistence.SaveImage;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -11,7 +16,9 @@ import java.util.Optional;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.refEq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -19,14 +26,34 @@ public class DetectBarcodeTest {
 
     @Mock ImageRequest image;
     @Mock DetectionRequest detection;
+    @Mock SaveImage save;
 
-    private TestObserver<Image> test;
+    @Mock ImageRequest.Dimens dimens;
+
+    @Mock Bounds bounds;
+
+    @Mock ImageRequest.Image img;
+    @Mock Bitmap bitmap;
+
+    @Mock SaveImage.ImagePath path;
+
+    private TestObserver<CroppableImage> test;
     private DetectBarcode barcode;
 
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        barcode = new DetectBarcode(image, detection);
+
+        when(image.findOriginalImageDimensions(anyString())).thenReturn(Single.just(dimens));
+
+        when(img.bitmap()).thenReturn(bitmap);
+        when(image.createScaledBitmap(anyString())).thenReturn(Single.just(img));
+
+        when(detection.getBoundsForSingleBarcode(bitmap)).thenReturn(Single.just(bounds));
+
+        when(save.save(bitmap)).thenReturn(Single.just(path));
+
+        barcode = new DetectBarcode(image, detection, save);
     }
 
     @After
@@ -41,55 +68,80 @@ public class DetectBarcodeTest {
         barcode.request(null);
     }
 
+
     @Test
-    public void givenInvalidUri_whenRequest_thenError() {
-        final String invalidUri = "invalid_uri";
-        final Throwable exception = new RuntimeException();
-        when(image.loadImage(invalidUri)).thenReturn(Single.error(exception));
+    public void whenRequest_thenReturnCroppaleImageWithOriginalImageDimensions() {
+        when(dimens.height()).thenReturn(500);
+        when(dimens.width()).thenReturn(500);
+        when(image.findOriginalImageDimensions(anyString())).thenReturn(Single.just(dimens));
 
-        test = barcode.request(invalidUri).test();
+        test = barcode.request("").test();
 
-        test.assertError(exception);
+        test.assertValueCount(1);
+        final CroppableImage result = test.values().get(0);
+        assertEquals(dimens.height(), result.originalHeight());
+        assertEquals(dimens.width(), result.originalWidth());
     }
 
     @Test
-    public void givenImageContainsNoDetectableBarcode_whenRequest_thenReturnOriginalImage() {
-        final Image original = mock(Image.class);
-        when(image.loadImage(anyString())).thenReturn(Single.just(original));
+    public void whenRequest_thenReturnCroppableImageWithScaledBitmapDimensions() {
+        when(bounds.containerHeight()).thenReturn(200);
+        when(bounds.containerWidth()).thenReturn(150);
 
-        final Bounds bounds = mock(Bounds.class);
-        when(bounds.isValid()).thenReturn(false);
+        test = barcode.request("").test();
 
-        final DetectionRequest.Result result = mock(DetectionRequest.Result.class);
-        when(result.bounds()).thenReturn(bounds);
-        when(result.original()).thenReturn(original);
-
-        when(detection.getBoundsForSingleBarcode(original)).thenReturn(Single.just(result));
-
-        test = barcode.request("valid").test();
-
-        test.assertValue(original);
+        test.assertValueCount(1);
+        final CroppableImage result = test.values().get(0);
+        assertEquals(bounds.containerHeight(), result.cropRegion().containerHeight());
+        assertEquals(bounds.containerWidth(), result.cropRegion().containerWidth());
     }
 
     @Test
-    public void givenImageContainsDetectableBarcode_whenRequest_thenReturnCroppedImage() {
-        final Image original = mock(Image.class);
-        when(image.loadImage(anyString())).thenReturn(Single.just(original));
+    public void whenRequest_thenReturnCroppableImageWithBoundsForCropArea() {
+        when(bounds.x()).thenReturn(20);
+        when(bounds.y()).thenReturn(20);
+        when(bounds.width()).thenReturn(200);
+        when(bounds.height()).thenReturn(100);
 
-        final Bounds bounds = mock(Bounds.class);
-        when(bounds.isValid()).thenReturn(true);
+        test = barcode.request("").test();
 
-        final DetectionRequest.Result result = mock(DetectionRequest.Result.class);
-        when(result.bounds()).thenReturn(bounds);
-        when(result.original()).thenReturn(original);
+        test.assertValueCount(1);
+        final CroppableImage result = test.values().get(0);
+        assertEquals(bounds.x(), result.cropRegion().x());
+        assertEquals(bounds.y(), result.cropRegion().y());
+        assertEquals(bounds.width(), result.cropRegion().width());
+        assertEquals(bounds.height(), result.cropRegion().height());
+    }
 
-        final Image cropped = mock(Image.class);
-        when(image.crop(original, bounds)).thenReturn(cropped);
+    @Test
+    public void whenRequest_thenReturnCroppableImageWithTemporaryFilePathAndGalleryContentUri() {
+        final Uri uri = mock(Uri.class);
+        when(path.original()).thenReturn(uri);
+        when(path.temp()).thenReturn("file:///temp/file/path.jpg");
 
-        when(detection.getBoundsForSingleBarcode(original)).thenReturn(Single.just(result));
+        test = barcode.request("").test();
 
-        test = barcode.request("valid").test();
+        test.assertValueCount(1);
+        final CroppableImage result = test.values().get(0);
+        assertEquals(path.original(), result.paths().original());
+        assertEquals(path.temp(), result.paths().temp());
+    }
 
-        test.assertValue(cropped);
+    @Test
+    public void givenErrorSavingFile_whenRequest_thenPropagateError() {
+        when(save.save(bitmap)).thenReturn(Single.error(new RuntimeException()));
+
+        test = barcode.request("").test();
+
+        test.assertError(RuntimeException.class);
+    }
+
+    @Test
+    public void givenErrorCalculatingBarcodeBounds_whenRequest_thenPropagateError() {
+        when(detection.getBoundsForSingleBarcode(bitmap)).thenReturn(Single.error(new RuntimeException()));
+
+        test = barcode.request("").test();
+
+        test.assertError(RuntimeException.class);
     }
 }
