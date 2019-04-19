@@ -1,5 +1,6 @@
 package com.github.ppartisan.loyalty;
 
+import com.github.ppartisan.loyalty.wallet.CardPreviewActivity;
 import com.github.ppartisan.loyalty.wallet.MyWalletActivity;
 import com.github.ppartisan.loyalty.wallet.MyWalletFragment;
 import com.github.ppartisan.loyalty.wallet.MyWalletModule;
@@ -13,4 +14,6 @@ abstract class BuilderModule {
     @ContributesAndroidInjector(modules = {
             MyWalletModule.class, MyWalletModule.ViewModule.class
     }) abstract MyWalletFragment myWalletActivityFragment();
+
+    @ContributesAndroidInjector abstract CardPreviewActivity cardPreviewActivity();
 }

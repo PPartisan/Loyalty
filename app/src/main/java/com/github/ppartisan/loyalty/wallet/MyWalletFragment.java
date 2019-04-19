@@ -5,51 +5,55 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-
-import com.bumptech.glide.Glide;
-import com.github.ppartisan.loyalty.R;
-import com.github.ppartisan.loyalty.model.barcode.Image;
-import com.github.ppartisan.loyalty.core.BaseFragment;
-import com.github.ppartisan.loyalty.wallet.SelectImage.Result;
-
-import javax.inject.Inject;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.databinding.DataBindingUtil;
 
-import static com.github.ppartisan.loyalty.R.id.fab;
-import static com.github.ppartisan.loyalty.R.id.toolbar;
+import com.github.ppartisan.loyalty.core.ActivityResultFactory.ActivityResult;
+import com.github.ppartisan.loyalty.core.BaseFragment;
+import com.github.ppartisan.loyalty.databinding.FragmentMyWalletBinding;
+import com.github.ppartisan.loyalty.model.barcode.CroppableImage;
+import com.theartofdev.edmodo.cropper.CropImage;
+
+import javax.inject.Inject;
+
 import static com.github.ppartisan.loyalty.R.layout.fragment_my_wallet;
 
 public class MyWalletFragment extends BaseFragment implements MyWalletView {
 
     @Inject MyWalletPresenter presenter;
 
+    private FragmentMyWalletBinding binding;
+
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup parent, Bundle state) {
-        final View view = inflater.inflate(fragment_my_wallet, parent, false);
-        activity().ifPresent(activity -> activity.setSupportActionBar(view.findViewById(toolbar)));
-        view.findViewById(fab).setOnClickListener(v -> presenter.onAddBarcodeClicked());
-        return view;
+        binding = DataBindingUtil.inflate(inflater, fragment_my_wallet, parent, false);
+        activity().ifPresent(activity -> activity.setSupportActionBar(binding.toolbar));
+        binding.fab.setOnClickListener(v -> presenter.onAddBarcodeClicked());
+        return binding.getRoot();
     }
 
     @Override
     public void onActivityResult(int request, int result, @Nullable Intent data) {
         super.onActivityResult(request, result, data);
-        Result.create(request, result, data)
-                .filter(Result::isSuccessful)
-                .flatMap(Result::data)
+
+        SelectImage.result().create(request, result, data)
+                .filter(ActivityResult::isSuccessful)
+                .flatMap(ActivityResult::data)
                 .map(Intent::getDataString)
                 .ifPresent(presenter::onImageSelected);
+
+        CropImageResult.create(request, result, data)
+                .ifPresent(presenter::onImageCropComplete);
+
     }
 
     @Override
-    public void showSelectedImage(Image image) {
-        root().ifPresent(v -> Glide.with(this)
-                .load(image.bitmap())
-                .into(v.<ImageView>findViewById(R.id.preview))
-        );
+    public void showCropImage(CroppableImage image) {
+        CropImage.activity(image.paths().tempUri())
+                .setInitialCropWindowRectangle(image.cropRegion().asRect())
+                .start(context(),this);
     }
 
 }
