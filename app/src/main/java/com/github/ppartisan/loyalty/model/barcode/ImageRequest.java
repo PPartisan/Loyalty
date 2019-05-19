@@ -70,13 +70,4 @@ class ImageRequest {
         }
     }
 
-    //Wraps an Android image type (i.e. Bitmap)
-    @AutoValue
-    abstract static class Image {
-        abstract Bitmap bitmap();
-        static Image create(Bitmap bitmap) {
-            return new AutoValue_ImageRequest_Image(bitmap);
-        }
-    }
-
 }

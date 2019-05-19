@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
+import com.github.ppartisan.loyalty.model.ModelModule;
 import com.google.firebase.ml.vision.FirebaseVision;
 import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcodeDetector;
 import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcodeDetectorOptions;
@@ -16,7 +17,7 @@ import dagger.Provides;
 
 import static com.google.firebase.ml.vision.barcode.FirebaseVisionBarcode.FORMAT_ALL_FORMATS;
 
-@Module
+@Module(includes = ModelModule.class)
 abstract class ApplicationModule {
     @Binds abstract Context context(Application application);
 

@@ -18,7 +18,6 @@ import io.reactivex.observers.TestObserver;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.refEq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -32,7 +31,8 @@ public class DetectBarcodeTest {
 
     @Mock Bounds bounds;
 
-    @Mock ImageRequest.Image img;
+    @Mock
+    Image img;
     @Mock Bitmap bitmap;
 
     @Mock SaveImage.ImagePath path;

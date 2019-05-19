@@ -56,4 +56,9 @@ public class MyWalletFragment extends BaseFragment implements MyWalletView {
                 .start(context(),this);
     }
 
+    @Override
+    public void showBarcode(String path) {
+        CardPreviewActivity.launch(this, path);
+    }
+
 }

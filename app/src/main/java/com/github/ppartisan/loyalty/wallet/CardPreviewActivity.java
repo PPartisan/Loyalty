@@ -50,7 +50,7 @@ public class CardPreviewActivity extends DaggerAppCompatActivity {
     private void loadPreview(String path) {
         Glide.with(this)
                 .load(path)
-                .circleCrop()
+                .fitCenter()
                 .into(binding.include.preview);
 
     }

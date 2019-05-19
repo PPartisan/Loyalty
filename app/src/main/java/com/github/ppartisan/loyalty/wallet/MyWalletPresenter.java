@@ -6,6 +6,8 @@ import com.github.ppartisan.loyalty.model.barcode.DetectBarcode;
 import com.github.ppartisan.loyalty.model.persistence.DeleteImage;
 import com.google.auto.value.AutoValue;
 
+import net.glxn.qrgen.android.QRCode;
+
 import io.reactivex.Single;
 import io.reactivex.disposables.Disposable;
 
@@ -38,17 +40,23 @@ class MyWalletPresenter extends Presenter<MyWalletView> {
 
     void onImageSelected(String uri) {
 
-        final Single<CroppableImage> showCropImage =
-                barcode.request(uri).doOnSuccess(view::showCropImage);
+//        final Single<CroppableImage> showCropImage =
+//                barcode.request(uri).doOnSuccess(view::showCropImage);
+//
+//        final Disposable disposable =
+//                Single.zip(showCropImage, delayedCrop.waitForCropResult(), CropResult::create)
+//                        .subscribeOn(io())
+//                        .observeOn(mainThread())
+//                        .subscribe(result -> {
+//                            delete.delete(result.tempFilePath());
+//                            //todo - Persist crop info (uri and bounds);
+//                        });
 
-        final Disposable disposable =
-                Single.zip(showCropImage, delayedCrop.waitForCropResult(), CropResult::create)
-                        .subscribeOn(io())
-                        .observeOn(mainThread())
-                        .subscribe(result -> {
-                            delete.delete(result.tempFilePath());
-                            //todo - Persist crop info (uri and bounds);
-                        });
+        final Disposable disposable = barcode.generate(uri)
+                .subscribeOn(io())
+                .observeOn(mainThread())
+//                .doOnSuccess(path -> delete.delete(path.temp()))
+                .subscribe(p -> view.showBarcode(p.temp()));
         addDisposable(disposable);
     }
 

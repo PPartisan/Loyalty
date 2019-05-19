@@ -21,7 +21,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 
 class DetectionRequest {
 
-    private static final int TIMEOUT_SECONDS = 3;
+    private static final int TIMEOUT_SECONDS = 5;
 
     private final FirebaseVisionBarcodeDetector detector;
 
@@ -30,14 +30,23 @@ class DetectionRequest {
         this.detector = detector;
     }
 
+    Single<Barcode> getBarcode(final Bitmap bitmap) {
+        return findBarcodesInBitmap(bitmap).map(DetectionRequest::mapFirstMatchToBarcode);
+    }
+
     Single<Bounds> getBoundsForSingleBarcode(final Bitmap bitmap) {
-        final Single<Rect> cropAreaAsRect = Single.fromCallable(() -> FirebaseVisionImage.fromBitmap(bitmap))
-                .map(detector::detectInImage)
-                .map(DetectionRequest::awaitBarcodeDetectionResults)
-                .map(DetectionRequest::mapFirstMatchToRect);
+        final Single<Rect> cropAreaAsRect =
+                findBarcodesInBitmap(bitmap).map(DetectionRequest::mapFirstMatchToRect);
 
         return  Single.zip(Single.fromCallable(() -> bitmap), cropAreaAsRect, Bounds::from)
                 .onErrorReturnItem(Bounds.invalid());
+    }
+
+    private static Barcode mapFirstMatchToBarcode(List<FirebaseVisionBarcode> barcodes) {
+        if(barcodes == null || barcodes.isEmpty()) {
+            return Barcode.invalid();
+        }
+        return Barcode.from(barcodes.get(0));
     }
 
     private static Rect mapFirstMatchToRect(List<FirebaseVisionBarcode> barcodes) {
@@ -55,6 +64,12 @@ class DetectionRequest {
     private static List<FirebaseVisionBarcode> awaitBarcodeDetectionResults(Task<List<FirebaseVisionBarcode>> task)
             throws InterruptedException, ExecutionException, TimeoutException {
         return Tasks.await(task, TIMEOUT_SECONDS, SECONDS);
+    }
+
+    private Single<List<FirebaseVisionBarcode>> findBarcodesInBitmap(Bitmap bitmap) {
+        return Single.fromCallable(() -> FirebaseVisionImage.fromBitmap(bitmap))
+                .map(detector::detectInImage)
+                .map(DetectionRequest::awaitBarcodeDetectionResults);
     }
 
 }
